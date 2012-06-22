@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
-import com.globant.blackjack.deck.SimpleDeck;
 import com.globant.blackjack.hand.Hand;
 import com.globant.blackjack.util.IO;
 
@@ -15,6 +14,7 @@ public class Blackjack {
 	private static final ResourceBundle messages;
 	private static final String ACCEPT;
 	private static final String DENY;
+	private static final int MINIMUN_TOTAL_FOR_CRUPIER_TO_STAND = 17;
 
 	static {
 		messages = ResourceBundle.getBundle("messages");
@@ -22,9 +22,9 @@ public class Blackjack {
 		DENY = messages.getString("deny.string");
 	}
 
-	public Blackjack() {
-		io = new IO();
-		game = new BlackjackGame(1, new SimpleDeck());
+	public Blackjack(IO io, BlackjackGame game) {
+		this.io = io;
+		this.game = game;
 		game.setup();
 	}
 
@@ -46,9 +46,9 @@ public class Blackjack {
 
 	protected void printInputErrorMessage() {
 		MessageFormat formatter = new MessageFormat("");
-	    formatter.applyPattern(messages.getString("input.error"));
-	    String output = formatter.format(new Object[]{ACCEPT, DENY});
-	    io.printMessage(output);
+		formatter.applyPattern(messages.getString("input.error"));
+		String output = formatter.format(new Object[] { ACCEPT, DENY });
+		io.printMessage(output);
 	}
 
 	protected void playerTurn() {
@@ -57,14 +57,23 @@ public class Blackjack {
 			String action = readAction();
 			switch (action) {
 			case "N": {
+				game.giveCard(0);
+				printHands();
 				break;
 			}
 			case "Y":
 				done = true;
 				break;
-				default:
-					printInputErrorMessage();
+			default:
+				printInputErrorMessage();
 			}
+		}
+	}
+
+	protected void crupierTurn() {
+		game.uncoverCrupierHand();
+		while (game.getCrupierHandTotal() < MINIMUN_TOTAL_FOR_CRUPIER_TO_STAND) {
+			game.giveCardCrupier();
 		}
 	}
 
@@ -74,11 +83,32 @@ public class Blackjack {
 	}
 
 	protected void printHands() {
+		printHand(game.getCrupierHand());
+		printHand(game.getPlayerHand(0));
+		io.printMessage(String.format(messages.getString("hands.separator")));
+	}
 
+	protected void printEndGameMessage() {
+		switch(game.determineOutcome(0)) {
+		case PLAYER:
+		case BLACKJACK:
+			io.printMessage(String.format(messages.getString("player.wins")));
+			break;
+		case HOUSE:
+			io.printMessage(String.format(messages.getString("house.wins")));
+			break;
+		case TIE:
+			io.printMessage(String.format(messages.getString("tie")));
+			break;
+		}
 	}
 
 	public void play() {
-		
+		printHands();
+		playerTurn();
+		crupierTurn();
+		printHands();
+		printEndGameMessage();
 	}
 
 }
