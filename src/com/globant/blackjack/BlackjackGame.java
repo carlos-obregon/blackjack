@@ -7,14 +7,14 @@ import com.globant.blackjack.hand.Hand;
 
 public class BlackjackGame {
 
-	private Hand crupierHand;
+	private Hand croupierHand;
 	private Hand[] playersHand;
 	private Deck deck;
 	private static final int BLACKJACK = 21;
 
 	public BlackjackGame(int numberOfPlayers, Deck deck) {
 		this.deck = deck;
-		crupierHand = new BlackjackHand();
+		croupierHand = new BlackjackHand();
 		playersHand = new Hand[numberOfPlayers];
 		for (int i = 0; i < numberOfPlayers; ++i) {
 			playersHand[i] = new BlackjackHand();
@@ -22,8 +22,8 @@ public class BlackjackGame {
 	}
 
 	public void setup() {
-		crupierHand.addCard(deck.giveCard());
-		crupierHand.addCard(deck.giveCard(false));
+		croupierHand.addCard(deck.giveCard());
+		croupierHand.addCard(deck.giveCard(false));
 		for (Hand hand : playersHand) {
 			for (int times = 1; times <= 2; ++times) {
 				hand.addCard(deck.giveCard());
@@ -32,7 +32,7 @@ public class BlackjackGame {
 	}
 
 	public void uncoverCrupierHand() {
-		crupierHand.flipCards();
+		croupierHand.flipCards();
 	}
 
 	public void giveCard(int player) {
@@ -45,16 +45,16 @@ public class BlackjackGame {
 	}
 
 	public int getCrupierHandTotal() {
-		return crupierHand.getValue();
+		return croupierHand.getValue();
 	}
 
 	public void giveCardCrupier() {
 		Card card = deck.giveCard();
-		crupierHand.addCard(card);
+		croupierHand.addCard(card);
 	}
 
 	public Hand getCrupierHand() {
-		return crupierHand;
+		return croupierHand;
 	}
 
 	public Hand getPlayerHand(int player) {
@@ -66,7 +66,7 @@ public class BlackjackGame {
 	}
 
 	public BlackjackWinner determineOutcome(int player) {
-		int crupierTotal = crupierHand.getValue();
+		int crupierTotal = croupierHand.getValue();
 		int playerTotal = playersHand[player].getValue();
 		if (crupierTotal == playerTotal) {
 			if (crupierTotal > BLACKJACK) {
